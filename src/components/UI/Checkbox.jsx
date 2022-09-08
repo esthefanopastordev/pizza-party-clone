@@ -1,4 +1,4 @@
-export const Checkbox = ({ id, label, name, onChange }) => {
+export const Checkbox = ({ id, label, name, onCheck }) => {
   return (
     <div>
       <input
@@ -6,7 +6,7 @@ export const Checkbox = ({ id, label, name, onChange }) => {
         type="checkbox"
         name={name}
         id={id}
-        onChange={onChange}
+        onChange={onCheck}
       />
       <label htmlFor={id}>{label}</label>
     </div>
