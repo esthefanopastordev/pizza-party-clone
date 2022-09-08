@@ -1,23 +1,15 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useState } from 'react';
 import { DUMMY_TOPPINGS } from '../../data/toppings';
+import { useTotalPrice } from '../../hooks/useTotalPrice';
 import { ToppingsContext } from '../../store/toppings-context';
 import { Button, Checkbox, Modal } from '../UI';
 
 export const ToppingsSummary = ({ onClose }) => {
   const { updateToppings } = useContext(ToppingsContext);
-
-  const [price, setPrice] = useState(0);
   const [selectedToppings, setSelectedToppings] = useState([]);
+  const totalPrice = useTotalPrice(selectedToppings);
 
-  useEffect(() => {
-    const updatedPrice = selectedToppings.reduce(
-      (total, sum) => total + sum.price,
-      0
-    );
-    setPrice(updatedPrice);
-  }, [selectedToppings]);
-
-  const totalPrice = `$${price.toFixed(2)}`;
+  const formattedTotalPrice = `$${totalPrice.toFixed(2)}`;
 
   const toggleToppingHandler = (topping, event) => {
     const isChecked = event.target.checked;
@@ -48,9 +40,9 @@ export const ToppingsSummary = ({ onClose }) => {
         <p>Please select the toppings you want on your pizza.</p>
       </header>
       <main>
-        <p className={`mb-2 ${price <= 0 && 'opacity-0'}`}>
+        <p className={`mb-2 ${totalPrice <= 0 && 'opacity-0'}`}>
           There will be an upchange of{' '}
-          <span className="font-bold">{totalPrice}</span>
+          <span className="font-bold">{formattedTotalPrice}</span>
         </p>
 
         <div className="flex flex-col gap-4">
