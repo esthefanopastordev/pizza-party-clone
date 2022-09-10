@@ -1,34 +1,45 @@
 import { useContext, useState } from 'react';
 import { DUMMY_TOPPINGS } from '../../data/toppings';
+import { useToppingList } from '../../hooks/useToppingList';
 import { useTotalPrice } from '../../hooks/useTotalPrice';
 import { ToppingsContext } from '../../store/toppings-context';
 import { Button, Checkbox, Modal } from '../UI';
 
 export const ToppingsSummary = ({ onClose }) => {
-  const { updateToppings } = useContext(ToppingsContext);
-  const [selectedToppings, setSelectedToppings] = useState([]);
-  const totalPrice = useTotalPrice(selectedToppings);
+  const { toppingList, updateToppings } = useContext(ToppingsContext);
+  const {
+    toppingList: tempToppingList,
+    addTopping,
+    removeTopping,
+  } = useToppingList(toppingList);
+  const totalPrice = useTotalPrice(tempToppingList);
 
   const formattedTotalPrice = `$${totalPrice.toFixed(2)}`;
 
-  const toggleToppingHandler = (topping, event) => {
-    const isChecked = event.target.checked;
+  const toggleToppingHandler = topping => {
+    if (toppingIsChecked(topping.name)) removeTopping(topping.name);
+    else addTopping(topping);
+  };
 
-    if (isChecked) setSelectedToppings(prev => [...prev, topping]);
-    else setSelectedToppings(prev => prev.filter(t => t.name !== topping.name));
+  const toppingIsChecked = name => {
+    const existingTopping = tempToppingList.find(
+      topping => topping.name === name
+    );
+    return Boolean(existingTopping);
   };
 
   const confirmHandler = () => {
-    updateToppings(selectedToppings);
+    updateToppings(tempToppingList);
     onClose();
   };
 
   const toppingCheckboxes = DUMMY_TOPPINGS.map(topping => (
     <Checkbox
       key={topping.name}
-      id={topping.name}
-      name={topping.name}
       label={`${topping.name} $${topping.price}`}
+      name={topping.name}
+      id={topping.name}
+      checked={toppingIsChecked(topping.name)}
       onCheck={toggleToppingHandler.bind(null, topping)}
     />
   ));
@@ -47,9 +58,10 @@ export const ToppingsSummary = ({ onClose }) => {
 
         <div className="flex flex-col gap-4">
           <Checkbox
+            label="Select All"
             name="select-all"
             id="select-all"
-            label="Select All"
+            checked={false}
             onCheck={() => {}}
           />
           {toppingCheckboxes}
